@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  iomad:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iomad_moodle
+    ports:
+      - "8083:80"
+    volumes:
+      - ./moodledata:/var/moodledata
+    environment:
+      MOODLE_DBTYPE: mysqli       # Set to mysqli for MySQL
+      MOODLE_DBHOST: mysql        # Reference the MySQL container name
+      MOODLE_DBPORT: 3306         # Default MySQL port
+      MOODLE_DBNAME: moodle       # Database name
+      MOODLE_DBUSER: moodle       # Database user
+      MOODLE_DBPASSWORD: Admin@123$  # Database password
+      MOODLE_USERNAME: admin      # Moodle admin user
+      MOODLE_PASSWORD: Admin@123$  # Moodle admin password
+      MOODLE_SITE_NAME: "lekden Test Moodle"
+    depends_on:
+      - mysql
+    networks:
+      - iomad-network
+
+  mysql:
+    image: mysql:5.7
+    container_name: iomad_mysql
+    environment:
+      MYSQL_DATABASE: moodle             # Database name
+      MYSQL_USER: moodle                 # MySQL user
+      MYSQL_PASSWORD: Admin@123$        # MySQL user password
+      MYSQL_ROOT_PASSWORD: rootpassword  # MySQL root password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Port forwarding for MySQL
+    networks:
+      - iomad-network
+
+  networks:
+    iomad-network:
+      driver: bridge
+
+volumes:
+  mysql_data:
+  moodledata:
+
